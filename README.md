@@ -1,6 +1,29 @@
-# XSS-Hunter
+<div align="center">
 
-**Exam-grade reflected-XSS fuzzer. Single file. Standard library only. No installation.**
+# 💉 XSS-Hunter
+
+### Exam-grade reflected-XSS fuzzer. Single file. Zero dependencies.
+
+*Built to replace Burp Intruder when you need speed under exam pressure.*
+
+<br>
+
+![Python](https://img.shields.io/badge/Python-3.7%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Dependencies](https://img.shields.io/badge/Dependencies-NONE-2ECC71?style=for-the-badge)
+![GUI](https://img.shields.io/badge/GUI-tkinter-9B59B6?style=for-the-badge&logo=windowsterminal&logoColor=white)
+![Platform](https://img.shields.io/badge/Windows%20%7C%20Linux%20%7C%20Kali-1F6FEB?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-F1C40F?style=for-the-badge)
+![Authorized use only](https://img.shields.io/badge/Authorized%20use-ONLY-E74C3C?style=for-the-badge)
+
+```text
+╔══════════════════════════════════════════════════════╗
+║          XSS Hunter - Exam-Grade Fuzzer              ║
+║  Threaded | Grep-filter | Auto-detect | Burp-aware   ║
+║          stdlib only · no DoS · polite               ║
+╚══════════════════════════════════════════════════════╝
+```
+
+</div>
 
 XSS-Hunter is a threaded reflected-XSS fuzzer built to replace Burp Intruder for
 the kind of web challenges you meet in a pentesting exam. It is one Python file
@@ -11,38 +34,30 @@ five minutes before the clock starts.
 It is built for **authorized** testing only: web pentesting labs, CTFs, and exam
 environments where you have permission to attack the target.
 
-```
-╔══════════════════════════════════════════════════════╗
-║          XSS Hunter - Exam-Grade Fuzzer              ║
-║  Threaded | Grep-filter | Auto-detect | Burp-aware   ║
-║          stdlib only · no DoS · polite               ║
-╚══════════════════════════════════════════════════════╝
-```
+---
+
+## 📖 Table of contents
+
+- [💡 Why this tool exists](#-why-this-tool-exists)
+- [🍪 The session cookie warning (read this first)](#-the-session-cookie-warning-read-this-first)
+- [⚙️ Install and requirements](#-install-and-requirements)
+- [🖥️ Graphical interface (GUI)](#-graphical-interface-gui)
+- [🚀 Quick start](#-quick-start)
+- [🎯 The four usage scenarios](#-the-four-usage-scenarios)
+- [🔍 How detection works](#-how-detection-works)
+- [🛰️ Auto-detect: finding the injectable parameter](#-auto-detect-finding-the-injectable-parameter)
+- [🚩 Every flag, explained](#-every-flag-explained)
+- [🍪 Cookies and sessions in detail](#-cookies-and-sessions-in-detail)
+- [📨 Using a Burp request file](#-using-a-burp-request-file)
+- [💣 The built-in payload list](#-the-built-in-payload-list)
+- [📤 Output and exit codes](#-output-and-exit-codes)
+- [🛡️ Politeness and safety caps](#-politeness-and-safety-caps)
+- [🩹 Troubleshooting](#-troubleshooting)
+- [👤 Author](#-author)
 
 ---
 
-## Table of contents
-
-- [Why this tool exists](#why-this-tool-exists)
-- [The session cookie warning (read this first)](#the-session-cookie-warning-read-this-first)
-- [Install and requirements](#install-and-requirements)
-- [Graphical interface (GUI)](#graphical-interface-gui)
-- [Quick start](#quick-start)
-- [The four usage scenarios](#the-four-usage-scenarios)
-- [How detection works](#how-detection-works)
-- [Auto-detect: finding the injectable parameter](#auto-detect-finding-the-injectable-parameter)
-- [Every flag, explained](#every-flag-explained)
-- [Cookies and sessions in detail](#cookies-and-sessions-in-detail)
-- [Using a Burp request file](#using-a-burp-request-file)
-- [The built-in payload list](#the-built-in-payload-list)
-- [Output and exit codes](#output-and-exit-codes)
-- [Politeness and safety caps](#politeness-and-safety-caps)
-- [Troubleshooting](#troubleshooting)
-- [Author](#author)
-
----
-
-## Why this tool exists
+## 💡 Why this tool exists
 
 In an exam you do not have time to fight your tools. Burp Intruder is powerful,
 but on the free edition it is throttled to a crawl, and setting up positions,
@@ -71,7 +86,7 @@ XSS-Hunter does exactly the few things that matter in a web XSS exam:
 
 ---
 
-## The session cookie warning (read this first)
+## 🍪 The session cookie warning (read this first)
 
 This is written in bold because students lose marks over it every single year.
 
@@ -99,7 +114,7 @@ do not accidentally fuzz an unauthenticated session.
 
 ---
 
-## Install and requirements
+## ⚙️ Install and requirements
 
 - **Python 3.7 or newer.** That is the only requirement.
 - No third-party packages. Everything used (`http.client`, `ssl`, `argparse`,
@@ -115,7 +130,7 @@ On Windows use `python`, on most Linux boxes use `python3`. Both work.
 
 ---
 
-## Graphical interface (GUI)
+## 🖥️ Graphical interface (GUI)
 
 If you prefer clicking over typing, there is a full graphical front-end:
 `xss_hunter_gui.py`. It is also pure standard library (Python's built-in
@@ -150,7 +165,7 @@ exactly what you selected.
 
 ---
 
-## Quick start
+## 🚀 Quick start
 
 The most common exam case: the professor tells you to grep for a keyword.
 
@@ -175,7 +190,7 @@ Read that command top to bottom:
 
 ---
 
-## The four usage scenarios
+## 🎯 The four usage scenarios
 
 These are the four shapes nearly every XSS challenge takes. Pick the one that
 matches your situation.
@@ -228,7 +243,7 @@ script-execution markers like `<script`, `onerror=`, or `alert(`.
 
 ---
 
-## How detection works
+## 🔍 How detection works
 
 XSS-Hunter labels every response with one of four outcomes, in strict priority
 order. The first two are hits; the last two are not.
@@ -254,7 +269,7 @@ the body also contains one of the execution clues: `<script`, `onerror=`,
 
 ---
 
-## Auto-detect: finding the injectable parameter
+## 🛰️ Auto-detect: finding the injectable parameter
 
 When you do not yet know which field reflects user input, run with `--auto-detect`
 and a URL. The tool sends a unique canary string (for example
@@ -272,7 +287,7 @@ candidates it prints the exact follow-up command to run, for example
 
 ---
 
-## Every flag, explained
+## 🚩 Every flag, explained
 
 ### Target (use `-u` OR `--request`)
 
@@ -335,7 +350,7 @@ candidates it prints the exact follow-up command to run, for example
 
 ---
 
-## Cookies and sessions in detail
+## 🍪 Cookies and sessions in detail
 
 There are two ways to attach a session, and they cover every situation:
 
@@ -360,7 +375,7 @@ nothing sent. Pass `-y` to skip this prompt once you trust the value.
 
 ---
 
-## Using a Burp request file
+## 📨 Using a Burp request file
 
 This mode is the most reliable for anything with custom headers or an unusual
 body. Capture the request in Burp, copy it to a file, and mark the one spot where
@@ -396,7 +411,7 @@ Notes that save time:
 
 ---
 
-## The built-in payload list
+## 💣 The built-in payload list
 
 When you do not pass `--no-common`, XSS-Hunter tries about 25 curated, high-
 probability payloads before your wordlist. They are ordered most-likely-first and
@@ -417,7 +432,7 @@ just this list as a fast first probe.
 
 ---
 
-## Output and exit codes
+## 📤 Output and exit codes
 
 A winning payload is printed in green with its label (GREP-HIT or XSS), the HTTP
 status, and the payload itself, so you can paste it straight into your report.
@@ -437,7 +452,7 @@ Ctrl-C the run stops cleanly and prints whatever it found so far.
 
 ---
 
-## Politeness and safety caps
+## 🛡️ Politeness and safety caps
 
 XSS-Hunter is deliberately not a denial-of-service tool.
 
@@ -451,7 +466,7 @@ XSS-Hunter is deliberately not a denial-of-service tool.
 
 ---
 
-## Troubleshooting
+## 🩹 Troubleshooting
 
 **Nothing is a hit but you expected one.** Check your `--grep` keyword against the
 exact word the challenge wants, and confirm `--cookie` is the active session. A
@@ -478,7 +493,7 @@ pass it with `--cookie`, and run again.
 
 ---
 
-## Author
+## 👤 Author
 
 Built by **Muhammad Izaz Haider**, Student of CyberSecurity at Howest, lover of
 AI and offensive security.
@@ -495,3 +510,16 @@ XSS-Hunter is for **authorized** security testing only: your own systems,
 explicit-permission engagements, CTFs, and exam labs where attacking the target
 is the point. Testing a site you do not have permission to test is illegal in
 most countries. You are responsible for how you use it.
+
+---
+
+<div align="center">
+
+### ⭐ If XSS-Hunter helped you, drop a star and share it with your class.
+
+**Made with care for students, by a student.**
+
+![Built by Muhammad Izaz Haider](https://img.shields.io/badge/Built%20by-Muhammad%20Izaz%20Haider-36C5F0?style=for-the-badge)
+![AI x Offensive Security](https://img.shields.io/badge/AI%20x%20Offensive%20Security-9B59B6?style=for-the-badge)
+
+</div>
