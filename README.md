@@ -26,6 +26,7 @@ environments where you have permission to attack the target.
 - [Why this tool exists](#why-this-tool-exists)
 - [The session cookie warning (read this first)](#the-session-cookie-warning-read-this-first)
 - [Install and requirements](#install-and-requirements)
+- [Graphical interface (GUI)](#graphical-interface-gui)
 - [Quick start](#quick-start)
 - [The four usage scenarios](#the-four-usage-scenarios)
 - [How detection works](#how-detection-works)
@@ -111,6 +112,41 @@ python xss_hunter.py -h
 ```
 
 On Windows use `python`, on most Linux boxes use `python3`. Both work.
+
+---
+
+## Graphical interface (GUI)
+
+If you prefer clicking over typing, there is a full graphical front-end:
+`xss_hunter_gui.py`. It is also pure standard library (Python's built-in
+tkinter), so there is still nothing to install.
+
+```bash
+python xss_hunter_gui.py
+```
+
+Keep `xss_hunter_gui.py` in the same folder as `xss_hunter.py`. The GUI does not
+re-implement anything: it builds the exact `xss_hunter.py` command from the form
+you fill in and runs the real tool underneath, streaming its live output into the
+window. Whatever the command line does, the GUI does identically.
+
+What you get:
+
+- **Every flag as a form field**, grouped into Target, Injection, Payloads,
+  Detection, Network and Session, and Output, with a short hint next to each one.
+- **A live output panel** with the banner, winning payloads in green, reflected
+  results in yellow, and the running progress shown on the status bar.
+- **A command preview box** that shows the exact command being run, so you learn
+  the command line by using the GUI. There is a Copy button to grab it.
+- **A cookie safety dialog**: before the first request, the GUI lists the cookies
+  it is about to send (partly redacted) and asks you to confirm, so the session
+  cookie stays sacred. Internally it passes `-y` to the engine so nothing hangs
+  waiting on a terminal prompt.
+- **Run and Stop buttons.** Stop cleanly terminates the run.
+
+The GUI always runs the engine with `--no-color` (so the panel text stays clean)
+and `-y` (so the confirmation is handled by the dialog above). Everything else is
+exactly what you selected.
 
 ---
 
