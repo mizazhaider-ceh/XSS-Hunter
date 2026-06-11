@@ -89,6 +89,50 @@ HELP_SECTIONS = [
           'settings. The mock exam answers in about 7 seconds. Use Threads 5, '
           'Delay 0.2, Timeout 25. High threads + low timeout on a slow server '
           'makes every request time out, which shows up as Errors, not hits.'),
+    ('h', 'Full reference: every field and check box'),
+    ('o', 'TARGET'),
+    ('p', '• URL / Burp request file (radio): how you point at the target. URL = '
+          'type the address; Request file = replay a saved raw request.'),
+    ('p', '• Target URL (-u): the form action, including any ?challenge=N part.'),
+    ('p', '• Method (POST or GET): how the form submits. Default POST.'),
+    ('p', '• Request file (--request): a raw HTTP request saved from Burp. Put FUZZ '
+          '(or §§) where the payload should go.'),
+    ('o', 'INJECTION'),
+    ('p', '• Parameter (-p): the form field name to inject, read from '
+          '<input name="...">.'),
+    ('p', '• Extra params: fixed key=value pairs sent on every request, one per line '
+          '(e.g. challenge=2).'),
+    ('p', '• Auto-detect injectable parameter (--auto-detect) [check]: probe common '
+          'field names with a marker and report which one reflects. Needs URL; '
+          'ignores Parameter.'),
+    ('o', 'PAYLOADS'),
+    ('p', '• Payload list (-f): your wordlist, one payload per line. Optional.'),
+    ('p', '• Skip built-in payloads (--no-common) [check]: do not try the ~25 '
+          'built-in payloads, only your file.'),
+    ('p', '• Built-in payloads only (--common-only) [check]: try ONLY the built-in '
+          'list, ignore the file. Fast first probe.'),
+    ('p', '• Limit (--limit): test only the first N payloads (smoke test).'),
+    ('o', 'DETECTION'),
+    ('p', '• Grep keyword (--grep): if the response contains this word, that payload '
+          'wins instantly. Use congratulations on the mock exam.'),
+    ('p', '• Test every payload (--all) [check]: do not stop at the first hit; list '
+          'every working payload.'),
+    ('o', 'NETWORK & SESSION'),
+    ('p', '• Cookie: the full cookie string as name=value; carries your session.'),
+    ('p', '• Extra headers: one per line, "Key: Value" (e.g. X-Forwarded-For: '
+          '127.0.0.1).'),
+    ('p', '• Threads (-t): parallel requests. Default 20, hard cap 30. Lower on slow '
+          'servers.'),
+    ('p', '• Delay (-d): seconds between requests per thread. Raise on fragile '
+          'servers.'),
+    ('p', '• Timeout: seconds before a request is given up. Keep it above the server '
+          'response time.'),
+    ('p', '• Skip TLS certificate verification (--insecure) [check]: accept '
+          'self-signed lab certificates.'),
+    ('o', 'OUTPUT'),
+    ('p', '• Save hits to (-o): append winning payloads to a file for your writeup.'),
+    ('p', '• Verbose (-v) [check]: show every result (reflected, blocked, errors), '
+          'not only hits.'),
     ('h', 'Quick checklist'),
     ('p', '1. URL from the form action.'),
     ('p', '2. Parameter from the input name.'),
@@ -824,6 +868,8 @@ class App(tk.Tk):
         txt.tag_configure('p', foreground=p['FG'], font=('Segoe UI', 10), spacing3=4,
                           lmargin1=4, lmargin2=4)
         txt.tag_configure('c', foreground=p['ACCENT'], font=('Consolas', 10), lmargin1=16, lmargin2=16)
+        txt.tag_configure('o', foreground=p['ACCENT'], font=('Segoe UI Semibold', 10),
+                          spacing1=8, spacing3=2, lmargin1=4, lmargin2=4)
         for style, line in HELP_SECTIONS:
             txt.insert('end', line + '\n', style)
         txt.configure(state='disabled')
