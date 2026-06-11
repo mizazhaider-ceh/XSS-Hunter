@@ -141,6 +141,12 @@ tkinter), so there is still nothing to install.
 python xss_hunter_gui.py
 ```
 
+There is nothing to `pip install`: the GUI uses Python's built-in tkinter. On
+Windows and macOS it just works. On some Linux distros tkinter is a separate
+system package, so if the GUI complains `No module named 'tkinter'`, install it
+with `sudo apt install python3-tk` (Debian / Ubuntu / Kali). See
+`requirements.txt` for the full note.
+
 Keep `xss_hunter_gui.py` in the same folder as `xss_hunter.py`. The GUI does not
 re-implement anything: it builds the exact `xss_hunter.py` command from the form
 you fill in and runs the real tool underneath, streaming its live output into the
