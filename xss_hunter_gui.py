@@ -64,6 +64,81 @@ class ScrollFrame(ttk.Frame):
         self.canvas.yview_scroll(int(-e.delta / 120), 'units')
 
 
+class Tooltip:
+    """A small hover popup that explains a widget."""
+
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tip = None
+        widget.bind('<Enter>', self._show, add='+')
+        widget.bind('<Leave>', self._hide, add='+')
+
+    def _show(self, _e=None):
+        if self.tip or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 18
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 6
+        self.tip = tk.Toplevel(self.widget)
+        self.tip.wm_overrideredirect(True)
+        self.tip.wm_geometry('+%d+%d' % (x, y))
+        tk.Label(self.tip, text=self.text, justify='left', bg='#1f2a3d', fg='#e6e9ef',
+                 font=('Segoe UI', 9), relief='solid', borderwidth=1, padx=8, pady=6,
+                 wraplength=340).pack()
+
+    def _hide(self, _e=None):
+        if self.tip:
+            self.tip.destroy()
+            self.tip = None
+
+
+# Field guide shown by the Help button. Each item is (style, text); blank text
+# is a spacer line.
+HELP_SECTIONS = [
+    ('h', 'What this window does'),
+    ('p', 'The GUI builds a real xss_hunter.py command from the fields on the '
+          'left and runs the actual tool, streaming its output on the right. The '
+          '"Command preview" box always shows exactly what is being run.'),
+    ('h', 'Finding the parameter  (-p)   <- the step people miss'),
+    ('p', '-p is the form field your payload is injected into. You read it from '
+          'the page HTML, you never guess it. Right-click the challenge page, '
+          'choose View Source (or press F12), find the form, and copy the input '
+          'name. Example from mock-exam challenge 2:'),
+    ('c', '<form method="POST" action="/challenge.php?challenge=2">'),
+    ('c', '    <input type="text" name="alert">   <-- this name is your -p'),
+    ('c', '    <input type="submit" value="Submit">'),
+    ('c', '</form>'),
+    ('p', 'That form means:  Method = POST,  URL = the action,  Parameter = alert.'),
+    ('p', 'If a form has several inputs and you are unsure which reflects, tick '
+          '"Auto-detect" and run. It tells you which field echoes your input. '
+          'Then put that name into Parameter and run for real.'),
+    ('h', 'The session cookie is sacred'),
+    ('p', 'Most exam challenges only count if the request carries your exact '
+          'PHPSESSID. Paste it into the Cookie field as PHPSESSID=... (get it from '
+          'DevTools > Application > Cookies). Never let it change mid-exam. Before '
+          'the first request the GUI shows the cookie and asks you to confirm.'),
+    ('h', 'How a winner is decided'),
+    ('p', 'Grep keyword (--grep): if the response contains this word, it is an '
+          'instant winner. On the Howest mock exam every solved challenge returns '
+          'the word "congratulations", so Grep = congratulations is usually all '
+          'you need.'),
+    ('p', 'With no grep, a hit = the payload is reflected AND the response shows '
+          'JavaScript-execution markers (script, onerror, onload, alert, ...).'),
+    ('h', 'Slow target?  Tune these (important)'),
+    ('p', 'If the summary shows lots of Errors, the server is too slow for your '
+          'settings. The mock exam answers in about 7 seconds. Use Threads 5, '
+          'Delay 0.2, Timeout 25. High threads + low timeout on a slow server '
+          'makes every request time out, which shows up as Errors, not hits.'),
+    ('h', 'Quick checklist'),
+    ('p', '1. URL from the form action.'),
+    ('p', '2. Parameter from the input name.'),
+    ('p', '3. Cookie = your live PHPSESSID.'),
+    ('p', '4. Grep = congratulations (mock exam).'),
+    ('p', '5. Tick Skip TLS verify (self-signed lab certificates).'),
+    ('p', '6. Slow server: lower threads, raise timeout.'),
+]
+
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -124,11 +199,17 @@ class App(tk.Tk):
         warn.pack(fill='x', padx=16, pady=(8, 10))
 
     # ---------- field helpers ----------
-    def _e(self, frame, row, label, var, hint=''):
-        ttk.Label(frame, text=label).grid(row=row, column=0, sticky='w', padx=8, pady=4)
-        ttk.Entry(frame, textvariable=var).grid(row=row, column=1, sticky='ew', padx=8, pady=4)
+    def _e(self, frame, row, label, var, hint='', tip=''):
+        lab = ttk.Label(frame, text=label)
+        lab.grid(row=row, column=0, sticky='w', padx=8, pady=4)
+        ent = ttk.Entry(frame, textvariable=var)
+        ent.grid(row=row, column=1, sticky='ew', padx=8, pady=4)
         if hint:
             ttk.Label(frame, text=hint, style='Hint.TLabel').grid(row=row, column=2, sticky='w', padx=4)
+        if tip:
+            Tooltip(lab, tip)
+            Tooltip(ent, tip)
+        return ent
 
     def _f(self, frame, row, label, var, hint='', save=False):
         ttk.Label(frame, text=label).grid(row=row, column=0, sticky='w', padx=8, pady=4)
@@ -141,11 +222,13 @@ class App(tk.Tk):
         if hint:
             ttk.Label(frame, text=hint, style='Hint.TLabel').grid(row=row, column=2, sticky='w', padx=4)
 
-    def _c(self, frame, row, text, var, hint=''):
-        ttk.Checkbutton(frame, text=text, variable=var).grid(
-            row=row, column=1, sticky='w', padx=8, pady=3)
+    def _c(self, frame, row, text, var, hint='', tip=''):
+        chk = ttk.Checkbutton(frame, text=text, variable=var)
+        chk.grid(row=row, column=1, sticky='w', padx=8, pady=3)
         if hint:
             ttk.Label(frame, text=hint, style='Hint.TLabel').grid(row=row, column=2, sticky='w')
+        if tip:
+            Tooltip(chk, tip)
 
     def _cb(self, frame, row, label, var, values):
         ttk.Label(frame, text=label).grid(row=row, column=0, sticky='w', padx=8, pady=4)
@@ -206,11 +289,17 @@ class App(tk.Tk):
         # ---- Injection ----
         lf = self._section(form, 'Injection')
         self.v_param = tk.StringVar()
-        self._e(lf, 0, 'Parameter (-p)', self.v_param, 'field to inject, e.g. alert')
+        self._e(lf, 0, 'Parameter (-p)', self.v_param, 'field to inject, e.g. alert',
+                tip='The form field your payload goes into. Read it from the page: '
+                    'View Source (F12), find <input name="...">, and use that name. '
+                    'Example: <input name="alert"> means Parameter = alert.')
         self.t_extra = self._text(lf, 1, 'Extra params', 3, 'fixed values, one per line, "key=value"')
         self.v_autodetect = tk.BooleanVar()
         self._c(lf, 2, 'Auto-detect injectable parameter (--auto-detect)', self.v_autodetect,
-                'needs URL; ignores -p')
+                'needs URL; ignores -p',
+                tip='Do not know which field reflects? Tick this and run. It fires a '
+                    'marker at common field names and reports which one echoes back. '
+                    'Then untick it and put that name in Parameter.')
 
         # ---- Payloads ----
         lf = self._section(form, 'Payloads')
@@ -227,21 +316,35 @@ class App(tk.Tk):
         lf = self._section(form, 'Detection')
         self.v_grep = tk.StringVar()
         self._e(lf, 0, 'Grep keyword (--grep)', self.v_grep,
-                'response contains this = instant winner')
+                'response contains this = instant winner',
+                tip='If the response body contains this word, that payload wins. '
+                    'On the Howest mock exam every solved challenge returns the word '
+                    '"congratulations", so Grep = congratulations is usually enough.')
         self.v_all = tk.BooleanVar()
         self._c(lf, 1, 'Test every payload, do not stop on first hit (--all)', self.v_all)
 
         # ---- Network & Session ----
         lf = self._section(form, 'Network & Session')
         self.v_cookie = tk.StringVar()
-        self._e(lf, 0, 'Cookie', self.v_cookie, 'PHPSESSID=...  (sent verbatim)')
+        self._e(lf, 0, 'Cookie', self.v_cookie, 'PHPSESSID=...  (sent verbatim)',
+                tip='Your live session, sent verbatim on every request. Get it from '
+                    'DevTools > Application > Cookies. Most exam challenges only count '
+                    'with the correct PHPSESSID. Never let it change mid-exam.')
         self.t_headers = self._text(lf, 1, 'Extra headers', 3, 'one per line, "Key: Value"')
         self.v_threads = tk.StringVar(value='20')
-        self._e(lf, 2, 'Threads (-t)', self.v_threads, 'default 20, hard cap 30')
+        self._e(lf, 2, 'Threads (-t)', self.v_threads, 'default 20, hard cap 30',
+                tip='Parallel requests. On a SLOW server (like the mock exam, ~7s '
+                    'per response) drop this to 5 or it floods and everything times '
+                    'out as Errors.')
         self.v_delay = tk.StringVar(value='0.0')
-        self._e(lf, 3, 'Delay (-d)', self.v_delay, 'raise to ~0.2 if you see 429s')
+        self._e(lf, 3, 'Delay (-d)', self.v_delay, 'raise to ~0.2 if you see 429s',
+                tip='Pause between requests per thread. Raise to 0.2 on a slow or '
+                    'fragile server.')
         self.v_timeout = tk.StringVar(value='8')
-        self._e(lf, 4, 'Timeout', self.v_timeout, 'per request, seconds')
+        self._e(lf, 4, 'Timeout', self.v_timeout, 'per request, seconds',
+                tip='Give up on a request after this many seconds. Must be HIGHER '
+                    'than the server response time. Mock exam answers in ~7s, so use '
+                    '25 there. Too low = Errors instead of hits.')
         self.v_insecure = tk.BooleanVar()
         self._c(lf, 5, 'Skip TLS certificate verification (--insecure)', self.v_insecure)
 
@@ -275,6 +378,7 @@ class App(tk.Tk):
         self.btn_stop.pack(side='left', padx=6)
         ttk.Button(btns, text='Preview', command=self.on_preview).pack(side='left')
         ttk.Button(btns, text='Clear log', command=self._clear_log).pack(side='left', padx=6)
+        ttk.Button(btns, text='❔ Help', command=self.on_help).pack(side='right')
 
         self.log = scrolledtext.ScrolledText(
             rc, bg='#0a0e16', fg=FG, insertbackground=FG, font=MONO, wrap='word',
@@ -519,6 +623,31 @@ class App(tk.Tk):
         self.clipboard_clear()
         self.clipboard_append(self.cmd_var.get())
         self.status_var.set('Command copied to clipboard.')
+
+    def on_help(self):
+        win = tk.Toplevel(self)
+        win.title('XSS-Hunter - Help & Field Guide')
+        win.configure(bg=BG)
+        win.geometry('740x660')
+        win.transient(self)
+        tk.Label(win, text='XSS-Hunter  ·  Field Guide', bg=BG, fg=ACCENT,
+                 font=('Segoe UI Semibold', 15)).pack(anchor='w', padx=16, pady=(14, 2))
+        tk.Label(win, text='Hover any field in the main window for a quick tip. '
+                           'This guide is the long version.',
+                 bg=BG, fg=MUTED, font=('Segoe UI', 9)).pack(anchor='w', padx=16, pady=(0, 8))
+        txt = scrolledtext.ScrolledText(win, bg='#0a0e16', fg=FG, insertbackground=FG,
+                                        font=('Segoe UI', 10), wrap='word', borderwidth=0,
+                                        highlightthickness=0, padx=14, pady=10)
+        txt.pack(fill='both', expand=True, padx=12, pady=(0, 10))
+        txt.tag_configure('h', foreground=ACCENT, font=('Segoe UI Semibold', 12),
+                          spacing1=12, spacing3=4)
+        txt.tag_configure('p', foreground=FG, font=('Segoe UI', 10), spacing3=4,
+                          lmargin1=4, lmargin2=4)
+        txt.tag_configure('c', foreground='#9bdcff', font=('Consolas', 10), lmargin1=16, lmargin2=16)
+        for style, line in HELP_SECTIONS:
+            txt.insert('end', line + '\n', style)
+        txt.configure(state='disabled')
+        ttk.Button(win, text='Close', command=win.destroy).pack(pady=(0, 12))
 
     def _set_running(self, running):
         self.btn_run.configure(state='disabled' if running else 'normal')

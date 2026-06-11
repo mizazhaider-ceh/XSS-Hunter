@@ -43,6 +43,7 @@ environments where you have permission to attack the target.
 - [⚙️ Install and requirements](#-install-and-requirements)
 - [🖥️ Graphical interface (GUI)](#-graphical-interface-gui)
 - [🚀 Quick start](#-quick-start)
+- [🧭 Finding the parameter to attack](#-finding-the-parameter-to-attack)
 - [🎯 The four usage scenarios](#-the-four-usage-scenarios)
 - [🔍 How detection works](#-how-detection-works)
 - [🛰️ Auto-detect: finding the injectable parameter](#-auto-detect-finding-the-injectable-parameter)
@@ -187,6 +188,51 @@ Read that command top to bottom:
   hint says "grep for tr0uble (replace 0 with o)", the word to pass is `trouble`.
 - `--cookie "PHPSESSID=..."` carries your exam session. This is the part most
   people forget.
+
+---
+
+## 🧭 Finding the parameter to attack
+
+`-p` tells the tool **which form field to inject the payload into**. You never
+guess it. You read it straight from the page's own HTML.
+
+Open the challenge, right-click and choose **View Source** (or press `F12` for
+DevTools), and look at the form. Here is the real HTML from mock-exam
+challenge 2:
+
+```html
+<p class="lead cover-copy">
+    You're trying to escape and run into Jasmine - quick create an alert to distract everybody!
+    <form method="POST" action="/challenge.php?challenge=2">
+        <input type="text" name="alert">      <!-- THIS name is your -p -->
+        <input type="submit" value="Submit">
+    </form>
+</p>
+```
+
+Read the form like a map:
+
+| What you see in the HTML              | What it gives the tool          |
+| ------------------------------------- | ------------------------------- |
+| `method="POST"`                       | `-X POST` (already the default) |
+| `action="/challenge.php?challenge=2"` | the `-u` URL                    |
+| `<input ... name="alert">`            | **`-p alert`**                  |
+
+So that single form turns into this command:
+
+```bash
+python xss_hunter.py \
+    -u "https://mockexam.wpt.edu.technet.howest.be/challenge.php?challenge=2" \
+    -p alert \
+    --grep congratulations \
+    --cookie "PHPSESSID=your_live_session" \
+    --insecure
+```
+
+> 💡 **Not sure which input reflects?** If the form has several fields, run once
+> with `--auto-detect` (plus your cookie). The tool fires a marker at each common
+> field name and reports which one echoes it back. Put that name into `-p` and
+> run for real.
 
 ---
 
